@@ -1,0 +1,821 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/L.Control.Locate.min.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title>Distribuição de Estudantes NEE sobre as localidades do município do Rio Grande - RS</title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+        <script src="data/localidadeazul_1.js"></script>
+        <script src="data/Recorte_das_Localidades_5.js"></script>
+        <script src="data/AlunosNEEqueestudamlongedasuaescola_6.js"></script>
+        <script src="data/AlunosNEEqueestudamprximodasuaescola_7.js"></script>
+        <script src="data/ContagemdeAlunosNEE_8.js"></script>
+        <script src="data/nmerodematriculasNEEporescolamunicipal_9.js"></script>
+        <script src="data/Instituicoes_Ensino_10.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[-32.19733827956145,-52.314578219817875],[-31.97447368082665,-51.978410139320594]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var title = new L.Control({'position':'topright'});
+        title.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info');
+            this.update();
+            return this._div;
+        };
+        title.update = function () {
+            this._div.innerHTML = '<h2>Distribuição de Estudantes NEE sobre as localidades do município do Rio Grande - RS</h2>';
+        };
+        title.addTo(map);
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_OpenStreetMap_0');
+        map.getPane('pane_OpenStreetMap_0').style.zIndex = 400;
+        var layer_OpenStreetMap_0 = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            pane: 'pane_OpenStreetMap_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_OpenStreetMap_0;
+        map.addLayer(layer_OpenStreetMap_0);
+        function pop_localidadeazul_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2"><strong>Localidade</strong><br />' + (feature.properties['Localidade'] !== null ? autolinker.link(feature.properties['Localidade'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_localidadeazul_1_0() {
+            return {
+                pane: 'pane_localidadeazul_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(43,131,186,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_localidadeazul_1');
+        map.getPane('pane_localidadeazul_1').style.zIndex = 401;
+        map.getPane('pane_localidadeazul_1').style['mix-blend-mode'] = 'normal';
+        var layer_localidadeazul_1 = new L.geoJson(json_localidadeazul_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_localidadeazul_1',
+            layerName: 'layer_localidadeazul_1',
+            pane: 'pane_localidadeazul_1',
+            onEachFeature: pop_localidadeazul_1,
+            style: style_localidadeazul_1_0,
+        });
+        bounds_group.addLayer(layer_localidadeazul_1);
+        map.addLayer(layer_localidadeazul_1);
+        map.createPane('pane_Kernel_Estudantes_2');
+        map.getPane('pane_Kernel_Estudantes_2').style.zIndex = 402;
+        var img_Kernel_Estudantes_2 = 'data/Kernel_Estudantes_2.png';
+        var img_bounds_Kernel_Estudantes_2 = [[-32.649506377175506,-52.6991685855106],[-31.7703061520983,-52.06104766858281]];
+        var layer_Kernel_Estudantes_2 = new L.imageOverlay(img_Kernel_Estudantes_2,
+                                              img_bounds_Kernel_Estudantes_2,
+                                              {pane: 'pane_Kernel_Estudantes_2'});
+        bounds_group.addLayer(layer_Kernel_Estudantes_2);
+        map.addLayer(layer_Kernel_Estudantes_2);
+        map.createPane('pane_Prox_Infantil_Kernel_3');
+        map.getPane('pane_Prox_Infantil_Kernel_3').style.zIndex = 403;
+        var img_Prox_Infantil_Kernel_3 = 'data/Prox_Infantil_Kernel_3.png';
+        var img_bounds_Prox_Infantil_Kernel_3 = [[-32.64948788363074,-52.69922153112804],[-31.770287418034652,-52.06110026116027]];
+        var layer_Prox_Infantil_Kernel_3 = new L.imageOverlay(img_Prox_Infantil_Kernel_3,
+                                              img_bounds_Prox_Infantil_Kernel_3,
+                                              {pane: 'pane_Prox_Infantil_Kernel_3'});
+        bounds_group.addLayer(layer_Prox_Infantil_Kernel_3);
+        map.addLayer(layer_Prox_Infantil_Kernel_3);
+        map.createPane('pane_Prox_Fundamental_Kernel_4');
+        map.getPane('pane_Prox_Fundamental_Kernel_4').style.zIndex = 404;
+        var img_Prox_Fundamental_Kernel_4 = 'data/Prox_Fundamental_Kernel_4.png';
+        var img_bounds_Prox_Fundamental_Kernel_4 = [[-32.64944324205998,-52.69916739180613],[-31.77033320680176,-52.06104797756194]];
+        var layer_Prox_Fundamental_Kernel_4 = new L.imageOverlay(img_Prox_Fundamental_Kernel_4,
+                                              img_bounds_Prox_Fundamental_Kernel_4,
+                                              {pane: 'pane_Prox_Fundamental_Kernel_4'});
+        bounds_group.addLayer(layer_Prox_Fundamental_Kernel_4);
+        map.addLayer(layer_Prox_Fundamental_Kernel_4);
+        function pop_Recorte_das_Localidades_5(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2"><strong>Localidade</strong><br />' + (feature.properties['Localidade'] !== null ? autolinker.link(feature.properties['Localidade'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Recorte_das_Localidades_5_0() {
+            return {
+                pane: 'pane_Recorte_das_Localidades_5',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(43,131,186,0.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Recorte_das_Localidades_5');
+        map.getPane('pane_Recorte_das_Localidades_5').style.zIndex = 405;
+        map.getPane('pane_Recorte_das_Localidades_5').style['mix-blend-mode'] = 'normal';
+        var layer_Recorte_das_Localidades_5 = new L.geoJson(json_Recorte_das_Localidades_5, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Recorte_das_Localidades_5',
+            layerName: 'layer_Recorte_das_Localidades_5',
+            pane: 'pane_Recorte_das_Localidades_5',
+            onEachFeature: pop_Recorte_das_Localidades_5,
+            style: style_Recorte_das_Localidades_5_0,
+        });
+        bounds_group.addLayer(layer_Recorte_das_Localidades_5);
+        map.addLayer(layer_Recorte_das_Localidades_5);
+        function pop_AlunosNEEqueestudamlongedasuaescola_6(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2"><strong>Localidade</strong><br />' + (feature.properties['Localidade'] !== null ? autolinker.link(feature.properties['Localidade'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>TotNProx</strong><br />' + (feature.properties['TotNProx'] !== null ? autolinker.link(feature.properties['TotNProx'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_AlunosNEEqueestudamlongedasuaescola_6_0(feature) {
+            if (feature.properties['TotNProx'] >= 0.000000 && feature.properties['TotNProx'] <= 0.000000 ) {
+                return {
+                pane: 'pane_AlunosNEEqueestudamlongedasuaescola_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(43,131,186,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['TotNProx'] >= 1.000000 && feature.properties['TotNProx'] <= 19.000000 ) {
+                return {
+                pane: 'pane_AlunosNEEqueestudamlongedasuaescola_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(171,221,164,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['TotNProx'] >= 20.000000 && feature.properties['TotNProx'] <= 39.000000 ) {
+                return {
+                pane: 'pane_AlunosNEEqueestudamlongedasuaescola_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,191,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['TotNProx'] >= 40.000000 && feature.properties['TotNProx'] <= 59.000000 ) {
+                return {
+                pane: 'pane_AlunosNEEqueestudamlongedasuaescola_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(253,189,115,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['TotNProx'] >= 60.000000 && feature.properties['TotNProx'] <= 75.000000 ) {
+                return {
+                pane: 'pane_AlunosNEEqueestudamlongedasuaescola_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(215,25,28,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_AlunosNEEqueestudamlongedasuaescola_6');
+        map.getPane('pane_AlunosNEEqueestudamlongedasuaescola_6').style.zIndex = 406;
+        map.getPane('pane_AlunosNEEqueestudamlongedasuaescola_6').style['mix-blend-mode'] = 'normal';
+        var layer_AlunosNEEqueestudamlongedasuaescola_6 = new L.geoJson(json_AlunosNEEqueestudamlongedasuaescola_6, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_AlunosNEEqueestudamlongedasuaescola_6',
+            layerName: 'layer_AlunosNEEqueestudamlongedasuaescola_6',
+            pane: 'pane_AlunosNEEqueestudamlongedasuaescola_6',
+            onEachFeature: pop_AlunosNEEqueestudamlongedasuaescola_6,
+            style: style_AlunosNEEqueestudamlongedasuaescola_6_0,
+        });
+        bounds_group.addLayer(layer_AlunosNEEqueestudamlongedasuaescola_6);
+        map.addLayer(layer_AlunosNEEqueestudamlongedasuaescola_6);
+        function pop_AlunosNEEqueestudamprximodasuaescola_7(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2"><strong>Localidade</strong><br />' + (feature.properties['Localidade'] !== null ? autolinker.link(feature.properties['Localidade'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>TotProx</strong><br />' + (feature.properties['TotProx'] !== null ? autolinker.link(feature.properties['TotProx'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_AlunosNEEqueestudamprximodasuaescola_7_0(feature) {
+            if (feature.properties['TotProx'] >= 0.000000 && feature.properties['TotProx'] <= 0.000000 ) {
+                return {
+                pane: 'pane_AlunosNEEqueestudamprximodasuaescola_7',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(43,131,186,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['TotProx'] >= 1.000000 && feature.properties['TotProx'] <= 33.000000 ) {
+                return {
+                pane: 'pane_AlunosNEEqueestudamprximodasuaescola_7',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(171,221,164,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['TotProx'] >= 34.000000 && feature.properties['TotProx'] <= 66.000000 ) {
+                return {
+                pane: 'pane_AlunosNEEqueestudamprximodasuaescola_7',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,191,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['TotProx'] >= 67.000000 && feature.properties['TotProx'] <= 99.000000 ) {
+                return {
+                pane: 'pane_AlunosNEEqueestudamprximodasuaescola_7',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(253,174,97,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['TotProx'] >= 100.000000 && feature.properties['TotProx'] <= 132.000000 ) {
+                return {
+                pane: 'pane_AlunosNEEqueestudamprximodasuaescola_7',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(215,25,28,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_AlunosNEEqueestudamprximodasuaescola_7');
+        map.getPane('pane_AlunosNEEqueestudamprximodasuaescola_7').style.zIndex = 407;
+        map.getPane('pane_AlunosNEEqueestudamprximodasuaescola_7').style['mix-blend-mode'] = 'normal';
+        var layer_AlunosNEEqueestudamprximodasuaescola_7 = new L.geoJson(json_AlunosNEEqueestudamprximodasuaescola_7, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_AlunosNEEqueestudamprximodasuaescola_7',
+            layerName: 'layer_AlunosNEEqueestudamprximodasuaescola_7',
+            pane: 'pane_AlunosNEEqueestudamprximodasuaescola_7',
+            onEachFeature: pop_AlunosNEEqueestudamprximodasuaescola_7,
+            style: style_AlunosNEEqueestudamprximodasuaescola_7_0,
+        });
+        bounds_group.addLayer(layer_AlunosNEEqueestudamprximodasuaescola_7);
+        map.addLayer(layer_AlunosNEEqueestudamprximodasuaescola_7);
+        function pop_ContagemdeAlunosNEE_8(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2"><strong>Localidade</strong><br />' + (feature.properties['Localidade'] !== null ? autolinker.link(feature.properties['Localidade'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>Total_Estudantes</strong><br />' + (feature.properties['Total_Estudantes'] !== null ? autolinker.link(feature.properties['Total_Estudantes'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_ContagemdeAlunosNEE_8_0(feature) {
+            if (feature.properties['Total_Estudantes'] >= 0.000000 && feature.properties['Total_Estudantes'] <= 0.000000 ) {
+                return {
+                pane: 'pane_ContagemdeAlunosNEE_8',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(43,131,186,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Total_Estudantes'] >= 1.000000 && feature.properties['Total_Estudantes'] <= 51.000000 ) {
+                return {
+                pane: 'pane_ContagemdeAlunosNEE_8',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(171,221,164,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Total_Estudantes'] >= 52.000000 && feature.properties['Total_Estudantes'] <= 103.000000 ) {
+                return {
+                pane: 'pane_ContagemdeAlunosNEE_8',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,191,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Total_Estudantes'] >= 104.000000 && feature.properties['Total_Estudantes'] <= 155.000000 ) {
+                return {
+                pane: 'pane_ContagemdeAlunosNEE_8',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(253,174,97,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Total_Estudantes'] >= 156.000000 && feature.properties['Total_Estudantes'] <= 203.000000 ) {
+                return {
+                pane: 'pane_ContagemdeAlunosNEE_8',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(215,25,28,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_ContagemdeAlunosNEE_8');
+        map.getPane('pane_ContagemdeAlunosNEE_8').style.zIndex = 408;
+        map.getPane('pane_ContagemdeAlunosNEE_8').style['mix-blend-mode'] = 'normal';
+        var layer_ContagemdeAlunosNEE_8 = new L.geoJson(json_ContagemdeAlunosNEE_8, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_ContagemdeAlunosNEE_8',
+            layerName: 'layer_ContagemdeAlunosNEE_8',
+            pane: 'pane_ContagemdeAlunosNEE_8',
+            onEachFeature: pop_ContagemdeAlunosNEE_8,
+            style: style_ContagemdeAlunosNEE_8_0,
+        });
+        bounds_group.addLayer(layer_ContagemdeAlunosNEE_8);
+        map.addLayer(layer_ContagemdeAlunosNEE_8);
+        function pop_nmerodematriculasNEEporescolamunicipal_9(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2"><strong>Tipo</strong><br />' + (feature.properties['Tipo'] !== null ? autolinker.link(feature.properties['Tipo'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>Endere__o</strong><br />' + (feature.properties['Endere__o'] !== null ? autolinker.link(feature.properties['Endere__o'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>Rede_de_en</strong><br />' + (feature.properties['Rede_de_en'] !== null ? autolinker.link(feature.properties['Rede_de_en'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>Escola_Atu</strong><br />' + (feature.properties['Escola_Atu'] !== null ? autolinker.link(feature.properties['Escola_Atu'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>Matrícula</strong><br />' + (feature.properties['Matrícula'] !== null ? autolinker.link(feature.properties['Matrícula'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_nmerodematriculasNEEporescolamunicipal_9_0(feature) {
+            if (feature.properties['Matrícula'] >= 0.000000 && feature.properties['Matrícula'] <= 0.000000 ) {
+                return {
+                pane: 'pane_nmerodematriculasNEEporescolamunicipal_9',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(43,69,186,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Matrícula'] >= 1.000000 && feature.properties['Matrícula'] <= 30.000000 ) {
+                return {
+                pane: 'pane_nmerodematriculasNEEporescolamunicipal_9',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(171,221,35,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Matrícula'] >= 31.000000 && feature.properties['Matrícula'] <= 60.000000 ) {
+                return {
+                pane: 'pane_nmerodematriculasNEEporescolamunicipal_9',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,61,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Matrícula'] >= 61.000000 && feature.properties['Matrícula'] <= 90.000000 ) {
+                return {
+                pane: 'pane_nmerodematriculasNEEporescolamunicipal_9',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(253,174,0,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Matrícula'] >= 91.000000 && feature.properties['Matrícula'] <= 120.000000 ) {
+                return {
+                pane: 'pane_nmerodematriculasNEEporescolamunicipal_9',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(215,25,0,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_nmerodematriculasNEEporescolamunicipal_9');
+        map.getPane('pane_nmerodematriculasNEEporescolamunicipal_9').style.zIndex = 409;
+        map.getPane('pane_nmerodematriculasNEEporescolamunicipal_9').style['mix-blend-mode'] = 'normal';
+        var layer_nmerodematriculasNEEporescolamunicipal_9 = new L.geoJson(json_nmerodematriculasNEEporescolamunicipal_9, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_nmerodematriculasNEEporescolamunicipal_9',
+            layerName: 'layer_nmerodematriculasNEEporescolamunicipal_9',
+            pane: 'pane_nmerodematriculasNEEporescolamunicipal_9',
+            onEachFeature: pop_nmerodematriculasNEEporescolamunicipal_9,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_nmerodematriculasNEEporescolamunicipal_9_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_nmerodematriculasNEEporescolamunicipal_9);
+        map.addLayer(layer_nmerodematriculasNEEporescolamunicipal_9);
+        function pop_Instituicoes_Ensino_10(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2"><strong>Tipo</strong><br />' + (feature.properties['Tipo'] !== null ? autolinker.link(feature.properties['Tipo'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>Endere__o</strong><br />' + (feature.properties['Endere__o'] !== null ? autolinker.link(feature.properties['Endere__o'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>Rede_de_en</strong><br />' + (feature.properties['Rede_de_en'] !== null ? autolinker.link(feature.properties['Rede_de_en'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>Escola_Atu</strong><br />' + (feature.properties['Escola_Atu'] !== null ? autolinker.link(feature.properties['Escola_Atu'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Matrícula'] !== null ? autolinker.link(feature.properties['Matrícula'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Instituicoes_Ensino_10_0(feature) {
+            switch(String(feature.properties['Y'])) {
+                case 'Educação Infantil':
+                    return {
+                pane: 'pane_Instituicoes_Ensino_10',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(1,35,255,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Ensino Fundamental':
+                    return {
+                pane: 'pane_Instituicoes_Ensino_10',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,238,1,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Especializada':
+                    return {
+                pane: 'pane_Instituicoes_Ensino_10',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,1,251,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Instituicoes_Ensino_10');
+        map.getPane('pane_Instituicoes_Ensino_10').style.zIndex = 410;
+        map.getPane('pane_Instituicoes_Ensino_10').style['mix-blend-mode'] = 'normal';
+        var layer_Instituicoes_Ensino_10 = new L.geoJson(json_Instituicoes_Ensino_10, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Instituicoes_Ensino_10',
+            layerName: 'layer_Instituicoes_Ensino_10',
+            pane: 'pane_Instituicoes_Ensino_10',
+            onEachFeature: pop_Instituicoes_Ensino_10,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_Instituicoes_Ensino_10_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Instituicoes_Ensino_10);
+        map.addLayer(layer_Instituicoes_Ensino_10);
+        var osmGeocoder = new L.Control.Geocoder({
+            collapsed: true,
+            position: 'topleft',
+            text: 'Search',
+            title: 'Testing'
+        }).addTo(map);
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .className += ' fa fa-search';
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .title += 'Search for a place';
+        var overlaysTree = [
+        {label: '<b>Pontos</b>', selectAllCheckbox: true, children: [
+            {label: 'Instituicoes_Ensino<br /><table><tr><td style="text-align: center;"><img src="legend/Instituicoes_Ensino_10_EducaçãoInfantil0.png" /></td><td>Educação Infantil</td></tr><tr><td style="text-align: center;"><img src="legend/Instituicoes_Ensino_10_EnsinoFundamental1.png" /></td><td>Ensino Fundamental</td></tr><tr><td style="text-align: center;"><img src="legend/Instituicoes_Ensino_10_Especializada2.png" /></td><td>Especializada</td></tr></table>', layer: layer_Instituicoes_Ensino_10},
+            {label: 'número de matriculas NEE por escola municipal<br /><table><tr><td style="text-align: center;"><img src="legend/nmerodematriculasNEEporescolamunicipal_9_000.png" /></td><td>0 - 0</td></tr><tr><td style="text-align: center;"><img src="legend/nmerodematriculasNEEporescolamunicipal_9_1301.png" /></td><td>1 - 30</td></tr><tr><td style="text-align: center;"><img src="legend/nmerodematriculasNEEporescolamunicipal_9_31602.png" /></td><td>31 - 60</td></tr><tr><td style="text-align: center;"><img src="legend/nmerodematriculasNEEporescolamunicipal_9_61903.png" /></td><td>61 - 90</td></tr><tr><td style="text-align: center;"><img src="legend/nmerodematriculasNEEporescolamunicipal_9_911204.png" /></td><td>91 - 120</td></tr></table>', layer: layer_nmerodematriculasNEEporescolamunicipal_9},]},
+        {label: '<b>Localidades</b>', selectAllCheckbox: true, children: [
+            {label: 'Contagem de Alunos NEE<br /><table><tr><td style="text-align: center;"><img src="legend/ContagemdeAlunosNEE_8_000.png" /></td><td>0 - 0</td></tr><tr><td style="text-align: center;"><img src="legend/ContagemdeAlunosNEE_8_1511.png" /></td><td>1 - 51</td></tr><tr><td style="text-align: center;"><img src="legend/ContagemdeAlunosNEE_8_521032.png" /></td><td>52 - 103</td></tr><tr><td style="text-align: center;"><img src="legend/ContagemdeAlunosNEE_8_1041553.png" /></td><td>104 - 155</td></tr><tr><td style="text-align: center;"><img src="legend/ContagemdeAlunosNEE_8_1562034.png" /></td><td>156 - 203</td></tr></table>', layer: layer_ContagemdeAlunosNEE_8},
+            {label: 'Alunos NEE que estudam próximo da sua escola<br /><table><tr><td style="text-align: center;"><img src="legend/AlunosNEEqueestudamprximodasuaescola_7_000.png" /></td><td>0 - 0</td></tr><tr><td style="text-align: center;"><img src="legend/AlunosNEEqueestudamprximodasuaescola_7_1331.png" /></td><td>1 - 33</td></tr><tr><td style="text-align: center;"><img src="legend/AlunosNEEqueestudamprximodasuaescola_7_34662.png" /></td><td>34 - 66</td></tr><tr><td style="text-align: center;"><img src="legend/AlunosNEEqueestudamprximodasuaescola_7_67993.png" /></td><td>67 - 99</td></tr><tr><td style="text-align: center;"><img src="legend/AlunosNEEqueestudamprximodasuaescola_7_1001324.png" /></td><td>100 - 132</td></tr></table>', layer: layer_AlunosNEEqueestudamprximodasuaescola_7},
+            {label: 'Alunos NEE que estudam longe da sua escola<br /><table><tr><td style="text-align: center;"><img src="legend/AlunosNEEqueestudamlongedasuaescola_6_000.png" /></td><td>0 - 0</td></tr><tr><td style="text-align: center;"><img src="legend/AlunosNEEqueestudamlongedasuaescola_6_1191.png" /></td><td>1 - 19</td></tr><tr><td style="text-align: center;"><img src="legend/AlunosNEEqueestudamlongedasuaescola_6_20392.png" /></td><td>20 - 39</td></tr><tr><td style="text-align: center;"><img src="legend/AlunosNEEqueestudamlongedasuaescola_6_40593.png" /></td><td>40 - 59</td></tr><tr><td style="text-align: center;"><img src="legend/AlunosNEEqueestudamlongedasuaescola_6_60754.png" /></td><td>60 - 75</td></tr></table>', layer: layer_AlunosNEEqueestudamlongedasuaescola_6},]},
+        {label: '<b>Kernel</b>', selectAllCheckbox: true, children: [
+            {label: '<img src="legend/Recorte_das_Localidades_5.png" /> Recorte_das_Localidades', layer: layer_Recorte_das_Localidades_5},
+            {label: "Prox_Fundamental_Kernel", layer: layer_Prox_Fundamental_Kernel_4},
+            {label: "Prox_Infantil_Kernel", layer: layer_Prox_Infantil_Kernel_3},
+            {label: "Kernel_Estudantes", layer: layer_Kernel_Estudantes_2},
+            {label: '<img src="legend/localidadeazul_1.png" /> localidadeazul', layer: layer_localidadeazul_1},]},
+            {label: "OpenStreetMap", layer: layer_OpenStreetMap_0, radioGroup: 'bm' },]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: true,
+        });
+        lay.addTo(map);
+        setBounds();
+        L.ImageOverlay.include({
+            getBounds: function () {
+                return this._bounds;
+            }
+        });
+        resetLabels([layer_nmerodematriculasNEEporescolamunicipal_9,layer_Instituicoes_Ensino_10]);
+        map.on("zoomend", function(){
+            resetLabels([layer_nmerodematriculasNEEporescolamunicipal_9,layer_Instituicoes_Ensino_10]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer_nmerodematriculasNEEporescolamunicipal_9,layer_Instituicoes_Ensino_10]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer_nmerodematriculasNEEporescolamunicipal_9,layer_Instituicoes_Ensino_10]);
+        });
+        </script>
+    </body>
+</html>
